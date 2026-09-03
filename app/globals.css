@@ -1,0 +1,180 @@
+/*
+ * Tokens do spec (DESIGN.md). Nenhum componente escreve cor literal —
+ * tudo aponta para uma variável, para que trocar de tema custe barato.
+ */
+:root {
+  color-scheme: dark;
+
+  --bg: #050505;
+  --surface: #0d0c0a;
+  --surface-alt: #111010;
+  --line: #26241f;
+  --line-strong: #3a362c;
+
+  --accent: #e3cb88;
+  --accent-dim: #c9b173;
+  --on-accent: #14120c;
+  /* variantes de texto sobre o dourado, lidas do mockup */
+  --on-accent-muted: #2e2818;
+  --on-accent-faint: #7a6836;
+
+  --text: #f5f3ee;
+  --text-muted: #8a857a;
+  --text-faint: #4a463c;
+
+  /* superfícies derivadas: linha fina da lista, série atual, fundo do item de nav */
+  --line-soft: #1c1a16;
+  --surface-now: #151309;
+  --surface-track: #1e1c17;
+  --surface-raised: #1a1813;
+  --text-dim: #b8b3a8;
+  --text-quiet: #6e6a61;
+
+  --r-card: 22px;
+  --r-hero: 26px;
+  --r-pill: 26px;
+
+  --gutter: 16px;
+  --tap: 44px;
+  --nav-space: 96px;
+}
+
+/* Mesma estrutura, tema claro (referência). Ativado por data-theme no <html>. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #fbf4ef;
+  --surface: #fffbf8;
+  --surface-alt: #f4ece5;
+  --line: #e2d6cb;
+  --line-strong: #cbbcae;
+
+  --accent: #3e7cc0;
+  --accent-dim: #6b9bd2;
+  --on-accent: #ffffff;
+  --on-accent-muted: #e8f0f9;
+  --on-accent-faint: #bcd4ec;
+
+  --text: #191512;
+  --text-muted: #6d6459;
+  --text-faint: #b3a99d;
+
+  --line-soft: #ece2d9;
+  --surface-now: #eaf1fa;
+  --surface-track: #e7ddd3;
+  --surface-raised: #f4ece5;
+  --text-dim: #4a423a;
+  --text-quiet: #8a8175;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---- papéis tipográficos (tabela do spec) ---- */
+
+.display {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.sectionTitle {
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sub {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ---- casca da página ---- */
+
+.shell {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: calc(20px + env(safe-area-inset-top)) var(--gutter)
+    calc(14px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+.shell--withNav {
+  padding-bottom: calc(var(--nav-space) + env(safe-area-inset-bottom));
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

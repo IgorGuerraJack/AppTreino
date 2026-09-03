@@ -1,0 +1,47 @@
+.wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--gutter) calc(14px + env(safe-area-inset-bottom));
+  pointer-events: none;
+  /* o conteúdo desaparece por baixo da pílula em vez de encostar nela */
+  background: linear-gradient(to top, var(--bg) 55%, transparent);
+}
+
+.nav {
+  pointer-events: auto;
+  width: 100%;
+  max-width: calc(430px - var(--gutter) * 2);
+  margin-top: 18px;
+  background: var(--surface-alt);
+  border: 0.5px solid var(--line);
+  border-radius: var(--r-pill);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 7px 22px;
+  border-radius: 20px;
+  color: var(--text-muted);
+}
+
+.item[aria-current="page"] {
+  background: #1e1c17;
+  color: var(--accent);
+}
+
+:root[data-theme="light"] .item[aria-current="page"] {
+  background: var(--surface);
+}

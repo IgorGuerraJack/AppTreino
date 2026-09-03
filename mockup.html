@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>App de treino — mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css" />
+<style>
+  :root {
+    --bg: #050505;
+    --surface: #0D0C0A;
+    --surface-alt: #111010;
+    --line: #26241F;
+    --line-strong: #3A362C;
+    --accent: #E3CB88;
+    --accent-dim: #C9B173;
+    --on-accent: #14120C;
+    --text: #F5F3EE;
+    --text-muted: #8A857A;
+    --text-faint: #4A463C;
+    --r-card: 22px;
+    --r-hero: 26px;
+    --r-pill: 26px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    background: #1a1a1a;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .phone {
+    width: 390px;
+    background: var(--bg);
+    border-radius: 34px;
+    padding: 20px 16px 14px;
+    color: var(--text);
+  }
+  .caption { color: #6E6A61; font-size: 12px; margin: 0 0 10px 6px; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.8px; margin: 0; }
+  .display { font-size: 30px; font-weight: 500; line-height: 1.15; margin: 4px 0 2px; }
+  .h2 { font-size: 23px; font-weight: 500; margin: 0 0 12px 4px; }
+  .sub { font-size: 13.5px; color: var(--text-muted); margin: 0; }
+  .card { background: var(--surface); border: 0.5px solid var(--line); border-radius: var(--r-card); }
+  .chip { font-size: 13px; color: #B8B3A8; background: var(--surface-alt); border: 0.5px solid var(--line); border-radius: 20px; padding: 8px 15px; }
+  .day { flex: 1; text-align: center; }
+  .day span { display: block; font-size: 11px; color: #6E6A61; letter-spacing: 1px; }
+  .day b { display: block; font-size: 15px; font-weight: 400; color: #6E6A61; margin-top: 6px; }
+  .day.on span { color: var(--accent); }
+  .day.on b { width: 34px; height: 34px; margin: 2px auto 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 500; display: flex; align-items: center; justify-content: center; }
+  .set { display: grid; grid-template-columns: 28px 1fr 1fr 30px; gap: 10px; padding: 12px 16px; align-items: center; font-size: 15px; }
+  .set + .set { border-top: 0.5px solid #1C1A16; }
+  .set .n { font-size: 13px; color: #6E6A61; }
+  .set.now { background: #151309; border-top: 0.5px solid var(--line-strong); padding: 14px 16px; }
+  .set.now .n { color: var(--accent); }
+  .set.todo { color: var(--text-faint); }
+  .cta { background: var(--accent); color: var(--on-accent); border: none; width: 100%; border-radius: var(--r-card); padding: 16px; font: 500 16px Inter, sans-serif; }
+  .nav { margin-top: 18px; background: var(--surface-alt); border: 0.5px solid var(--line); border-radius: var(--r-pill); display: flex; justify-content: space-around; align-items: center; padding: 10px 6px; }
+  .nav i { font-size: 22px; color: var(--text-muted); }
+  .nav .on { background: #1E1C17; border-radius: 20px; padding: 7px 22px; }
+  .nav .on i { color: var(--accent); }
+  .bar { border-radius: 6px 6px 0 0; flex: 1; }
+</style>
+</head>
+<body>
+
+<div>
+<p class="caption">1 · Início</p>
+<div class="phone">
+  <div style="display:flex;gap:2px;margin-bottom:-16px">
+    <div class="day"><span>s</span><b>31</b></div>
+    <div class="day"><span>t</span><b>1</b></div>
+    <div class="day"><span>q</span><b>2</b></div>
+    <div class="day on"><span>q</span><b>3</b></div>
+    <div class="day"><span>s</span><b>4</b></div>
+    <div class="day"><span>s</span><b>5</b></div>
+    <div class="day"><span>d</span><b>6</b></div>
+  </div>
+
+  <svg viewBox="0 0 320 210" style="width:100%;display:block">
+    <defs><clipPath id="hero"><path d="M 4 46 C 4 34 12 26 24 26 H 130 C 146 26 148 70 160 70 C 172 70 174 26 190 26 H 296 C 308 26 316 34 316 46 V 186 C 316 198 308 206 296 206 H 24 C 12 206 4 198 4 186 Z"/></clipPath></defs>
+    <path d="M 4 46 C 4 34 12 26 24 26 H 130 C 146 26 148 70 160 70 C 172 70 174 26 190 26 H 296 C 308 26 316 34 316 46 V 186 C 316 198 308 206 296 206 H 24 C 12 206 4 198 4 186 Z" fill="#E3CB88"/>
+    <g clip-path="url(#hero)" fill="none" stroke="#14120C" stroke-opacity="0.09" stroke-width="1.5">
+      <circle cx="286" cy="146" r="48"/><circle cx="286" cy="146" r="82"/><circle cx="286" cy="146" r="116"/>
+    </g>
+    <text x="26" y="106" font-size="11" letter-spacing="1.8" fill="#7A6836">treino de hoje</text>
+    <text x="24" y="146" font-size="36" font-weight="500" fill="#14120C">Superiores</text>
+    <text x="26" y="178" font-size="13.5" fill="#2E2818">2 exercícios · 7 séries</text>
+    <text x="26" y="196" font-size="12" fill="#7A6836">seu plano está pronto</text>
+  </svg>
+
+  <p class="eyebrow" style="color:var(--accent);margin:20px 0 2px 4px">plano do dia</p>
+  <p class="h2">Seus exercícios</p>
+
+  <div style="display:flex;gap:8px;margin:0 0 18px 4px">
+    <span class="chip">Ver evolução</span>
+    <span class="chip">Editar semana</span>
+  </div>
+
+  <div style="display:flex;gap:12px;padding:0 4px 14px">
+    <div style="width:44px;display:flex;flex-direction:column;align-items:center">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center"><i class="ti ti-barbell" style="font-size:20px;color:var(--on-accent)"></i></div>
+      <div style="width:1px;flex:1;background:var(--line-strong);margin-top:4px"></div>
+    </div>
+    <div style="flex:1">
+      <p style="margin:0;font-size:17px;font-weight:500">Supino inclinado</p>
+      <p class="sub" style="margin-top:2px">3 séries × 10 reps · 22 kg</p>
+    </div>
+    <i class="ti ti-pencil" style="font-size:18px;color:#5E5A51"></i>
+  </div>
+
+  <div style="display:flex;gap:12px;padding:0 4px 6px">
+    <div style="width:44px;display:flex;justify-content:center">
+      <div style="width:40px;height:40px;border-radius:50%;background:#1A1813;border:0.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center"><i class="ti ti-stretching" style="font-size:20px;color:var(--accent-dim)"></i></div>
+    </div>
+    <div style="flex:1">
+      <p style="margin:0;font-size:17px;font-weight:500">Remada curvada</p>
+      <p class="sub" style="margin-top:2px">4 séries × 8 reps · 60 kg</p>
+    </div>
+    <i class="ti ti-pencil" style="font-size:18px;color:#5E5A51"></i>
+  </div>
+
+  <div class="nav">
+    <i class="ti ti-home"></i>
+    <span class="on"><i class="ti ti-barbell" style="display:block"></i></span>
+    <i class="ti ti-chart-bar"></i>
+  </div>
+</div>
+</div>
+
+<div>
+<p class="caption">2 · Treino em execução</p>
+<div class="phone">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <span class="sub"><i class="ti ti-clock" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>24:18</span>
+    <span class="eyebrow" style="color:var(--accent)">exercício 2 de 2</span>
+  </div>
+
+  <div style="height:3px;background:#1E1C17;border-radius:3px;margin-bottom:22px"><div style="width:64%;height:3px;background:var(--accent);border-radius:3px"></div></div>
+
+  <p class="eyebrow" style="color:#7A756A">em execução</p>
+  <p class="display">Remada curvada</p>
+  <p class="sub" style="margin-bottom:20px">última vez: 4×8 · 60 kg</p>
+
+  <div class="card" style="overflow:hidden;margin-bottom:16px">
+    <div class="set"><span class="n">01</span><span>62,5 kg</span><span>8 reps</span><i class="ti ti-check" style="font-size:18px;color:var(--accent)"></i></div>
+    <div class="set"><span class="n">02</span><span>62,5 kg</span><span>8 reps</span><i class="ti ti-check" style="font-size:18px;color:var(--accent)"></i></div>
+    <div class="set now"><span class="n">03</span><span style="border-bottom:1px solid var(--accent);padding-bottom:3px">62,5 kg</span><span style="border-bottom:1px solid var(--line-strong);padding-bottom:3px;color:var(--text-muted)">— reps</span><i class="ti ti-check" style="font-size:18px;color:var(--text-faint)"></i></div>
+    <div class="set todo"><span class="n" style="color:inherit">04</span><span>—</span><span>—</span><i class="ti ti-check" style="font-size:18px"></i></div>
+  </div>
+
+  <div class="card" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <p class="eyebrow" style="color:#7A756A">descanso</p>
+      <p style="margin:2px 0 0;font-size:28px;font-weight:500;color:var(--accent)">01:12</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <span style="width:44px;height:44px;border-radius:50%;border:0.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center"><i class="ti ti-rotate-2" style="font-size:19px;color:#B8B3A8"></i></span>
+      <span style="width:44px;height:44px;border-radius:50%;border:0.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:13px;color:#B8B3A8">+30</span>
+    </div>
+  </div>
+
+  <button class="cta">Concluir série</button>
+</div>
+</div>
+
+<div>
+<p class="caption">3 · Progresso</p>
+<div class="phone">
+  <p class="eyebrow" style="color:var(--accent)">esta semana</p>
+  <p class="h2" style="margin:4px 0 18px">Seu volume</p>
+
+  <div class="card" style="border-radius:var(--r-hero);padding:20px 18px;margin-bottom:18px">
+    <svg viewBox="0 0 220 112" style="width:100%;display:block">
+      <path d="M 26 100 A 84 84 0 0 1 194 100" fill="none" stroke="#2A2822" stroke-width="13" stroke-linecap="round"/>
+      <path d="M 26 100 A 84 84 0 0 1 194 100" fill="none" stroke="#E3CB88" stroke-width="13" stroke-linecap="round" stroke-dasharray="216 264"/>
+      <text x="110" y="82" text-anchor="middle" font-size="34" font-weight="500" fill="#F5F3EE">18,4</text>
+      <text x="110" y="100" text-anchor="middle" font-size="12" fill="#8A857A">toneladas movidas</text>
+    </svg>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div>
+        <p class="sub" style="font-size:12.5px">Sessões</p>
+        <p style="margin:3px 0 6px;font-size:15px">3 / 4</p>
+        <div style="height:5px;background:#1E1C17;border-radius:5px"><div style="width:75%;height:5px;background:var(--accent-dim);border-radius:5px"></div></div>
+      </div>
+      <div>
+        <p class="sub" style="font-size:12.5px">Meta de volume</p>
+        <p style="margin:3px 0 6px;font-size:15px">82%</p>
+        <div style="height:5px;background:#1E1C17;border-radius:5px"><div style="width:82%;height:5px;background:var(--accent);border-radius:5px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:0 4px 12px">
+    <p style="margin:0;font-size:17px;font-weight:500">Supino reto</p>
+    <span style="font-size:12px;color:var(--on-accent);background:var(--accent);border-radius:20px;padding:4px 11px">+9%</span>
+  </div>
+
+  <div style="display:flex;align-items:flex-end;gap:7px;height:110px;padding:0 4px">
+    <div class="bar" style="height:52%;background:#2A2822"></div>
+    <div class="bar" style="height:58%;background:#2A2822"></div>
+    <div class="bar" style="height:56%;background:#2A2822"></div>
+    <div class="bar" style="height:68%;background:var(--line-strong)"></div>
+    <div class="bar" style="height:74%;background:var(--line-strong)"></div>
+    <div class="bar" style="height:72%;background:var(--accent-dim)"></div>
+    <div class="bar" style="height:86%;background:var(--accent-dim)"></div>
+    <div class="bar" style="height:100%;background:var(--accent)"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:8px 4px 0;font-size:11px;color:#6E6A61"><span>set</span><span>82,5 kg</span></div>
+
+  <div class="nav">
+    <i class="ti ti-home"></i>
+    <i class="ti ti-barbell"></i>
+    <span class="on"><i class="ti ti-chart-bar" style="display:block"></i></span>
+  </div>
+</div>
+</div>
+
+</body>
+</html>

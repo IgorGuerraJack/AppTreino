@@ -1,0 +1,42 @@
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.label {
+  color: #7a756a;
+}
+
+.time {
+  margin: 2px 0 0;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action {
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  border-radius: 50%;
+  border: 0.5px solid var(--line-strong);
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}

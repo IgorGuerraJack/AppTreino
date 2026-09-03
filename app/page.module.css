@@ -1,0 +1,26 @@
+.planLabel {
+  color: var(--accent);
+  margin: 20px 0 2px 4px;
+}
+
+.planTitle {
+  margin: 0 0 12px 4px;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 18px 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 15px;
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--surface-alt);
+  border: 0.5px solid var(--line);
+  border-radius: 20px;
+}

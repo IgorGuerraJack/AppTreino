@@ -1,0 +1,54 @@
+.strip {
+  display: flex;
+  gap: 2px;
+  /* recuo espelhado em HeroCard (STRIP_INSET): mantém a ondulação alinhada */
+  padding: 0 2.5%;
+  /* o card herói sobe por baixo da faixa: o dia ativo encaixa na ondulação */
+  margin-bottom: -16px;
+  position: relative;
+  z-index: 1;
+}
+
+.day {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 0;
+  background: none;
+  border: 0;
+  text-align: center;
+}
+
+.letter {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-quiet);
+  transition: color 160ms ease;
+}
+
+.number {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-quiet);
+  margin-top: 6px;
+  min-height: 22px;
+}
+
+.day[aria-pressed="true"] .letter {
+  color: var(--accent);
+}
+
+.day[aria-pressed="true"] .number {
+  width: 34px;
+  height: 34px;
+  margin: 2px auto 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
