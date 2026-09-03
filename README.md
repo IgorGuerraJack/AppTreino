@@ -23,6 +23,27 @@ npm run lint
 npm run typecheck
 ```
 
+## Deploy
+
+O app é 100% estático depois do build — todas as rotas são pré-renderizadas —
+então serve em qualquer host. Duas rotas prontas:
+
+**Vercel.** Importar o repositório e aceitar os padrões. Roda o Next nativo na
+raiz do domínio; nenhuma variável precisa ser configurada.
+
+**GitHub Pages.** O workflow em `.github/workflows/deploy-pages.yml` faz lint,
+typecheck, exporta estático e publica. Falta só habilitar em
+*Settings → Pages → Source: GitHub Actions*. Repositório privado exige plano
+pago; num repositório público funciona no plano grátis.
+
+O basePath e o export estático ficam atrás de env vars (`NEXT_PUBLIC_BASE_PATH`
+e `NEXT_STATIC_EXPORT`), então os dois caminhos convivem: o Pages publica em
+`/<repo>` e a Vercel na raiz, sem fork de código.
+
+```bash
+npm run build:pages   # export estático em out/
+```
+
 ## Estrutura
 
 ```

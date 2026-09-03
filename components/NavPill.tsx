@@ -16,13 +16,16 @@ const HIDDEN_ON = ["/treino"];
 
 export function NavPill() {
   const pathname = usePathname();
-  if (HIDDEN_ON.includes(pathname)) return null;
+  /* Com trailingSlash o pathname vem como "/treino/": normaliza antes de
+     comparar, senão a nav não se esconde e cobre o botão de ação. */
+  const route = pathname.replace(/\/+$/, "") || "/";
+  if (HIDDEN_ON.includes(route)) return null;
 
   return (
     <div className={styles.wrap}>
       <nav className={styles.nav} aria-label="Seções">
         {ITEMS.map(({ href, label, Icon }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const active = href === "/" ? route === "/" : route === href || route.startsWith(`${href}/`);
           return (
             <Link
               key={href}

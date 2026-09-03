@@ -2,11 +2,17 @@
  * Service worker mínimo, escrito à mão: o app é de um usuário só e o que
  * ele precisa é abrir na academia mesmo sem sinal. O registro da série já
  * vive no localStorage — aqui só garantimos que a casca carregue offline.
+ *
+ * O arquivo é estático (não passa pelo build), então o prefixo de caminho
+ * vem do próprio escopo do registro: funciona na raiz e em /<repo>.
  */
 const VERSION = "v1";
 const SHELL_CACHE = `apptreino-shell-${VERSION}`;
 const ASSET_CACHE = `apptreino-assets-${VERSION}`;
-const SHELL_URLS = ["/", "/treino", "/progresso", "/offline"];
+
+const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+const OFFLINE_URL = `${BASE}/offline/`;
+const SHELL_URLS = [`${BASE}/`, `${BASE}/treino/`, `${BASE}/progresso/`, OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -35,7 +41,10 @@ self.addEventListener("activate", (event) => {
 
 /** Estáticos com hash no nome: cache-first, nunca revalidam. */
 function isImmutableAsset(url) {
-  return url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/");
+  return (
+    url.pathname.startsWith(`${BASE}/_next/static/`) ||
+    url.pathname.startsWith(`${BASE}/icons/`)
+  );
 }
 
 self.addEventListener("fetch", (event) => {
@@ -72,7 +81,7 @@ self.addEventListener("fetch", (event) => {
         .catch(() =>
           caches
             .match(request)
-            .then((hit) => hit || caches.match("/offline"))
+            .then((hit) => hit || caches.match(OFFLINE_URL))
             .then((hit) => hit || Response.error()),
         ),
     );
