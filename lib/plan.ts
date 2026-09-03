@@ -66,12 +66,16 @@ export function newExercise(): PlannedExercise {
   };
 }
 
+/**
+ * Nasce sem exercícios: quem cria o treino é sempre o "Adicionar exercício",
+ * que acrescenta o primeiro logo em seguida. Já vir com um faria dois.
+ */
 export function newWorkout(isoWeekday: number): Workout {
   return {
     id: makeId("treino"),
     title: "Treino",
     isoWeekday,
-    exercises: [newExercise()],
+    exercises: [],
   };
 }
 

@@ -8,6 +8,7 @@ import { Placeholder } from "@/components/Placeholder";
 import { RestTimer } from "@/components/RestTimer";
 import { SetTable } from "@/components/SetTable";
 import { formatClock, formatKg, parseKg, parseReps } from "@/lib/format";
+import { formatSummary, lastSummaryFor } from "@/lib/history";
 import { totalSets, workoutForWeekday } from "@/lib/plan";
 import { cursorFor, entriesFor } from "@/lib/session";
 import { useMounted } from "@/lib/useMounted";
@@ -21,7 +22,7 @@ export default function TreinoPage() {
   const router = useRouter();
   const mounted = useMounted();
   const store = useWorkoutStore();
-  const { hydrated, plan, session, lastWeights } = store;
+  const { hydrated, plan, session, history, lastWeights } = store;
 
   /* Um treino em andamento manda mais que o calendário: se a sessão virou a
      meia-noite, a tela continua sendo a do treino que está rolando. */
@@ -57,6 +58,13 @@ export default function TreinoPage() {
       : 0;
   const exercise = workout?.exercises[shownIndex];
   const currentSetIndex = cursor && !cursor.done ? cursor.setIndex : null;
+
+  /* "última vez" sai do histórico; o `previous` do plano é só a semente, que
+     vale enquanto não existir nenhuma sessão concluída com este exercício. */
+  const lastSummary = useMemo(
+    () => (exercise ? lastSummaryFor(history, exercise.id) : null),
+    [history, exercise],
+  );
 
   const prefillWeight = exercise
     ? formatKg(lastWeights[exercise.id] ?? exercise.suggestedWeightKg)
@@ -98,10 +106,13 @@ export default function TreinoPage() {
     );
   };
 
-  const previous = exercise?.previous;
-  const lastLine = previous
-    ? `última vez: ${previous.sets}×${previous.reps} · ${formatKg(previous.weightKg)} kg`
-    : "primeira vez com este exercício";
+  const seed = exercise?.previous;
+  let lastLine = "primeira vez com este exercício";
+  if (lastSummary) {
+    lastLine = `última vez: ${formatSummary(lastSummary)}`;
+  } else if (seed) {
+    lastLine = `última vez: ${seed.sets}×${seed.reps} · ${formatKg(seed.weightKg)} kg`;
+  }
 
   const total = workout ? totalSets(workout) : 0;
   const progress = total > 0 ? Math.round((entries.length / total) * 100) : 0;
