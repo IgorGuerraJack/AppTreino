@@ -1,4 +1,5 @@
-import type { SessionState, SetEntry } from "./types";
+import { DEFAULT_PLAN } from "./plan";
+import type { SessionState, SetEntry, WeekPlan } from "./types";
 
 const KEY = "apptreino:v1";
 
@@ -10,6 +11,8 @@ export interface HistoryRecord {
 }
 
 export interface PersistedState {
+  /** O plano é editável: a constante em plan.ts é só a semente. */
+  plan: WeekPlan;
   session: SessionState | null;
   history: HistoryRecord[];
   /** Último peso usado por exercício — é o que pré-preenche a próxima sessão. */
@@ -17,6 +20,7 @@ export interface PersistedState {
 }
 
 export const EMPTY_STATE: PersistedState = {
+  plan: DEFAULT_PLAN,
   session: null,
   history: [],
   lastWeights: {},
@@ -33,6 +37,9 @@ export function loadState(): PersistedState {
     if (!raw) return EMPTY_STATE;
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     return {
+      // Um plano sem treinos é uma semana vazia legítima; só a ausência da
+      // chave (instalação antiga) volta para a semente.
+      plan: parsed.plan && Array.isArray(parsed.plan.workouts) ? parsed.plan : DEFAULT_PLAN,
       session: parsed.session ?? null,
       history: Array.isArray(parsed.history) ? parsed.history : [],
       lastWeights: parsed.lastWeights ?? {},

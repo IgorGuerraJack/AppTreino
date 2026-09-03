@@ -10,9 +10,14 @@ export interface WeekDay {
   isToday: boolean;
 }
 
+/** 1 = segunda … 7 = domingo. */
+export function isoWeekdayOf(date: Date): number {
+  return date.getDay() === 0 ? 7 : date.getDay();
+}
+
 /** Semana que contém `today`, começando na segunda. */
 export function currentWeek(today: Date): WeekDay[] {
-  const isoToday = today.getDay() === 0 ? 7 : today.getDay();
+  const isoToday = isoWeekdayOf(today);
   const monday = new Date(today);
   monday.setHours(0, 0, 0, 0);
   monday.setDate(monday.getDate() - (isoToday - 1));

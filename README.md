@@ -3,12 +3,15 @@
 PWA instalável de treino, mobile-first, um usuário só. Next.js (App Router) +
 TypeScript. O visual segue `DESIGN.md` e o `mockup.html` de referência.
 
-Duas telas implementadas nesta etapa:
+Telas implementadas:
 
 - **Início** (`/`) — faixa da semana, card herói com a ondulação sob o dia
   ativo, e a timeline de exercícios do dia.
 - **Treino em execução** (`/treino`) — série atual em destaque, peso
   pré-preenchido, cronômetro de descanso e ação primária no rodapé.
+- **Montar semana** (`/planejar`) — edita o treino de cada dia: nome, ordem e,
+  por exercício, séries, repetições, peso e descanso. Ajuste por stepper em vez
+  de teclado; esvaziar um dia devolve ele para "livre".
 
 ## Rodando
 
@@ -53,7 +56,8 @@ app/
   page.tsx          Início
   treino/           Treino em execução
   manifest.ts       manifesto do PWA
-  progresso/  planejar/  offline/   telas de apoio
+  planejar/         Montar semana (editor do plano)
+  progresso/  offline/         telas de apoio
 components/         WeekStrip, HeroCard, ExerciseTimeline, SetTable, RestTimer, NavPill
 lib/                plano, sessão, persistência, formatação, hooks
 public/sw.js        service worker
@@ -98,6 +102,10 @@ Três desvios, todos por causa do uso real — de pé, com uma mão, na academia
 
 ## Fora de escopo nesta etapa
 
-`/progresso` e `/planejar` existem como destinos honestos dos chips e da nav —
-nenhum controle da tela leva a lugar nenhum — mas ainda não têm conteúdo. O
-plano de treino mora em `lib/plan.ts`, não em banco: é um app de um usuário só.
+`/progresso` existe como destino honesto do chip e da nav — nenhum controle da
+tela leva a lugar nenhum — mas ainda não tem conteúdo: ele só faz sentido
+depois de algumas sessões registradas.
+
+Sem contas e sem servidor: o plano e o histórico vivem no `localStorage` do
+aparelho. `DEFAULT_PLAN` em `lib/plan.ts` é só a semente da primeira abertura —
+a partir da primeira edição quem manda é o que está gravado.

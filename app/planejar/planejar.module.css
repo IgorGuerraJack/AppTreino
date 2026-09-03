@@ -1,0 +1,80 @@
+/* A faixa da semana sobe 16px para encaixar no card herói; aqui não há herói,
+   então o espaço volta neste primeiro bloco. */
+.label {
+  color: var(--accent);
+  margin: 36px 0 2px 4px;
+}
+
+.emptyTitle {
+  margin: 0 0 12px;
+}
+
+.titleRow {
+  margin: 0 4px 2px;
+}
+
+.title {
+  width: 100%;
+  /* piso de alvo de toque: o campo é a única forma de renomear o treino */
+  min-height: var(--tap);
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text);
+  appearance: none;
+}
+
+.title:hover,
+.title:focus {
+  border-bottom-color: var(--line-strong);
+  outline: none;
+}
+
+.title:focus {
+  border-bottom-color: var(--accent);
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.summary {
+  margin: 4px 4px 18px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: none;
+  border: 0.5px dashed var(--line-strong);
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+.empty {
+  padding: 2px 4px 0;
+}
+
+.emptyText {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 30ch;
+}

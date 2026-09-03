@@ -1,17 +1,13 @@
-import { Placeholder } from "@/components/Placeholder";
+import { Suspense } from "react";
+import { PlanejarEditor } from "./PlanejarEditor";
 
 export const metadata = { title: "Semana · Treino" };
 
 export default function PlanejarPage() {
+  // O editor lê ?dia= da URL, o que exige um limite de Suspense no export estático.
   return (
-    <main className="shell shell--withNav">
-      <Placeholder
-        eyebrow="montar semana"
-        title="Editar plano"
-        text="O plano da semana ainda vive no código. A edição pela tela entra depois do treino e da evolução."
-        actionLabel="Voltar ao início"
-        actionHref="/"
-      />
-    </main>
+    <Suspense fallback={<main className="shell shell--withNav" />}>
+      <PlanejarEditor />
+    </Suspense>
   );
 }

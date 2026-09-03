@@ -6,7 +6,7 @@ import { ExerciseTimeline } from "@/components/ExerciseTimeline";
 import { HeroCard } from "@/components/HeroCard";
 import { WeekStrip, WeekStripSkeleton } from "@/components/WeekStrip";
 import { pluralize } from "@/lib/format";
-import { WORKOUT, totalSets } from "@/lib/plan";
+import { totalSets, workoutForWeekday } from "@/lib/plan";
 import { cursorFor } from "@/lib/session";
 import { useMounted } from "@/lib/useMounted";
 import { useWorkoutStore } from "@/lib/useWorkoutStore";
@@ -18,28 +18,31 @@ export default function HomePage() {
      montada depois da hidratação, e até lá a faixa fica só com as letras. */
   const mounted = useMounted();
   const week = useMemo(() => (mounted ? currentWeek(new Date()) : null), [mounted]);
-  const { hydrated, session } = useWorkoutStore(WORKOUT);
+  const { hydrated, plan, session } = useWorkoutStore();
 
   const [picked, setPicked] = useState<number | null>(null);
-  const todayIndex = week ? week.findIndex((day) => day.isToday) : WORKOUT.isoWeekday - 1;
+  const fallbackIndex = (plan.workouts[0]?.isoWeekday ?? 1) - 1;
+  const todayIndex = week ? week.findIndex((day) => day.isToday) : fallbackIndex;
   const selectedIndex = picked ?? todayIndex;
+  const isoWeekday = selectedIndex + 1;
 
-  const hasWorkout = selectedIndex + 1 === WORKOUT.isoWeekday;
+  const workout = workoutForWeekday(plan, isoWeekday);
   const isToday = week ? week[selectedIndex]?.isToday === true : true;
 
   const cursor = useMemo(
-    () => cursorFor(WORKOUT, session?.entries ?? []),
-    [session?.entries],
+    () => (workout ? cursorFor(workout, session?.entries ?? []) : null),
+    [workout, session?.entries],
   );
-  const currentExerciseIndex = cursor.done ? -1 : cursor.exerciseIndex;
+  const currentExerciseIndex = cursor && !cursor.done ? cursor.exerciseIndex : -1;
+
   const logged = hydrated && session ? session.entries.length : 0;
   const inProgress = logged > 0;
 
-  const sets = totalSets(WORKOUT);
-  const heroMeta = `${pluralize(WORKOUT.exercises.length, "exercício", "exercícios")} · ${pluralize(sets, "série", "séries")}`;
+  const sets = workout ? totalSets(workout) : 0;
   const heroHint = inProgress
     ? `${logged} de ${sets} séries registradas`
     : "seu plano está pronto";
+  const editHref = `/planejar?dia=${isoWeekday}`;
 
   return (
     <main className="shell shell--withNav">
@@ -49,17 +52,15 @@ export default function HomePage() {
         <WeekStripSkeleton />
       )}
 
-      {hasWorkout ? (
+      {workout ? (
         <HeroCard
           dayIndex={selectedIndex}
           eyebrow={isToday ? "treino de hoje" : "treino do dia"}
-          title={WORKOUT.title}
-          meta={heroMeta}
+          title={workout.title}
+          meta={`${pluralize(workout.exercises.length, "exercício", "exercícios")} · ${pluralize(sets, "série", "séries")}`}
           hint={heroHint}
           href="/treino"
-          actionLabel={
-            inProgress ? `Continuar ${WORKOUT.title}` : `Iniciar treino ${WORKOUT.title}`
-          }
+          actionLabel={inProgress ? `Continuar ${workout.title}` : `Iniciar treino ${workout.title}`}
         />
       ) : (
         <HeroCard
@@ -78,15 +79,15 @@ export default function HomePage() {
         <Link href="/progresso" className={styles.chip}>
           Ver evolução
         </Link>
-        <Link href="/planejar" className={styles.chip}>
+        <Link href={editHref} className={styles.chip}>
           Editar semana
         </Link>
       </div>
 
       <ExerciseTimeline
-        exercises={hasWorkout ? WORKOUT.exercises : []}
-        currentIndex={hasWorkout && isToday ? currentExerciseIndex : -1}
-        editHref="/planejar"
+        exercises={workout?.exercises ?? []}
+        currentIndex={workout && isToday ? currentExerciseIndex : -1}
+        editHref={editHref}
       />
     </main>
   );

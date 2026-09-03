@@ -1,0 +1,92 @@
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 6px 16px 8px;
+  margin-bottom: 12px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.position {
+  font-size: 13px;
+  color: var(--text-quiet);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0;
+  background: none;
+  border: 0;
+  /* 16px evita o zoom automático do iOS ao focar o campo */
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+  appearance: none;
+}
+
+.name::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.name:focus {
+  outline: none;
+}
+
+.name:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.steppers {
+  border-top: 0.5px solid var(--line-soft);
+  padding-top: 4px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 0.5px solid var(--line-soft);
+  margin-top: 6px;
+  padding-top: 2px;
+}
+
+.moves {
+  display: flex;
+  gap: 2px;
+  /* alinha o ícone com a margem do card, não com a caixa de 44px */
+  margin-left: -12px;
+}
+
+.iconButton {
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+
+.iconButton:disabled {
+  opacity: 0.3;
+}
+
+.remove {
+  margin-right: -12px;
+  color: #8a6a5e;
+}

@@ -27,6 +27,11 @@ export interface Workout {
   exercises: PlannedExercise[];
 }
 
+/** O plano inteiro: no máximo um treino por dia da semana. */
+export interface WeekPlan {
+  workouts: Workout[];
+}
+
 /** Uma série efetivamente registrada. */
 export interface SetEntry {
   exerciseId: string;
