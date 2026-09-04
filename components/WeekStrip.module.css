@@ -1,8 +1,8 @@
 .strip {
   display: flex;
   gap: 2px;
-  /* recuo espelhado em HeroCard (STRIP_INSET): mantém a ondulação alinhada */
-  padding: 0 2.5%;
+  /* recuo espelhado em HeroCard (STRIP_INSET): mantém o vinco alinhado */
+  padding: 0 5%;
   /* o card herói sobe por baixo da faixa: o dia ativo encaixa na ondulação */
   margin-bottom: -16px;
   position: relative;

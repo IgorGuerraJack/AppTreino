@@ -8,44 +8,47 @@ import styles from "./HeroCard.module.css";
 const VIEW_W = 320;
 const VIEW_H = 210;
 const DAYS = 7;
-/* A faixa da semana tem 2.5% de recuo de cada lado; a ondulação usa o mesmo
-   mapeamento para cair exatamente sob o dia ativo. */
-const STRIP_INSET = 0.025;
-/* Trecho reto do topo do card: fora dele a ondulação invadiria os cantos. */
+/* A faixa da semana usa o mesmo recuo (WeekStrip.module.css) para o vinco
+   cair exatamente sob o dia ativo. 5% em vez dos 2,5% originais — o máximo
+   que ainda deixa cada dia com 44px de largura em 390px, o piso de toque do
+   spec; um recuo maior encolheria os botões da faixa abaixo disso. */
+const STRIP_INSET = 0.05;
+/* Trecho reto do topo do card: fora dele o vinco invadiria os cantos. */
 const FLAT_START = 24;
 const FLAT_END = 296;
-const HALF_WIDTH = 30;
-const DEPTH = 44;
+/* Raio do vinco = raio do círculo do dia (34px de diâmetro na tela, convertido
+   para unidades do viewBox). Igualar largura e profundidade faz um
+   semicírculo de verdade, não uma curva em V. */
+const RADIUS = 15;
 
-/** Centro da ondulação, em unidades do viewBox, para o dia selecionado. */
+/** Centro do vinco, em unidades do viewBox, para o dia selecionado. */
 export function valleyCenter(dayIndex: number): number {
   const fraction = STRIP_INSET + ((dayIndex + 0.5) / DAYS) * (1 - STRIP_INSET * 2);
   return Math.min(FLAT_END, Math.max(FLAT_START, fraction * VIEW_W));
 }
 
 /**
- * Quanto da ondulação cabe nesta posição. Nos dias das pontas ela não cabe
- * inteira, então encolhe em vez de escorregar para debaixo do dia errado.
+ * Quanto do vinco cabe nesta posição. Com o recuo atual isso já dá 1 (cheio)
+ * nos 7 dias; a função fica como salvaguarda caso o recuo mude no futuro.
  */
 export function valleyScale(cx: number): number {
   const room = Math.min(cx - FLAT_START, FLAT_END - cx);
-  return Math.min(1, Math.max(0, room / HALF_WIDTH));
+  return Math.min(1, Math.max(0, room / RADIUS));
 }
 
 /**
- * Retângulo arredondado com uma ondulação no topo, na posição do dia ativo.
- * Os números vêm do path do mockup, parametrizados por centro e escala.
+ * Retângulo arredondado com um vinco semicircular no topo, na posição do dia
+ * ativo — um arco elíptico de verdade, não uma curva em V aproximada.
  */
 export function heroPath(cx: number, scale = 1): string {
   const n = (value: number) => Math.round(value * 100) / 100;
-  const w = HALF_WIDTH * scale;
-  const floor = 26 + DEPTH * scale;
+  const r = RADIUS * scale;
   return [
     "M 4 46",
     "C 4 34 12 26 24 26",
-    `H ${n(cx - w)}`,
-    `C ${n(cx - w * 0.47)} 26 ${n(cx - w * 0.4)} ${n(floor)} ${n(cx)} ${n(floor)}`,
-    `C ${n(cx + w * 0.4)} ${n(floor)} ${n(cx + w * 0.47)} 26 ${n(cx + w)} 26`,
+    `H ${n(cx - r)}`,
+    // sweep-flag 0 curva a linha para baixo (para dentro do card)
+    `A ${n(r)} ${n(r)} 0 0 0 ${n(cx + r)} 26`,
     "H 296",
     "C 308 26 316 34 316 46",
     "V 186",
