@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { ExerciseTimeline } from "@/components/ExerciseTimeline";
 import { HeroCard } from "@/components/HeroCard";
 import { WeekStrip, WeekStripSkeleton } from "@/components/WeekStrip";
 import { pluralize } from "@/lib/format";
-import { totalSets, workoutForWeekday } from "@/lib/plan";
+import { trainedDateKeys } from "@/lib/history";
+import { totalSets, workoutById } from "@/lib/plan";
 import { cursorFor } from "@/lib/session";
 import { useMounted } from "@/lib/useMounted";
 import { useWorkoutStore } from "@/lib/useWorkoutStore";
@@ -18,16 +19,14 @@ export default function HomePage() {
      montada depois da hidratação, e até lá a faixa fica só com as letras. */
   const mounted = useMounted();
   const week = useMemo(() => (mounted ? currentWeek(new Date()) : null), [mounted]);
-  const { hydrated, plan, session } = useWorkoutStore();
+  const { hydrated, plan, currentWorkoutId, session, history } = useWorkoutStore();
 
-  const [picked, setPicked] = useState<number | null>(null);
-  const fallbackIndex = (plan.workouts[0]?.isoWeekday ?? 1) - 1;
-  const todayIndex = week ? week.findIndex((day) => day.isToday) : fallbackIndex;
-  const selectedIndex = picked ?? todayIndex;
-  const isoWeekday = selectedIndex + 1;
+  const todayIndex = week ? week.findIndex((day) => day.isToday) : 3;
+  const trainedKeys = useMemo(() => trainedDateKeys(history), [history]);
 
-  const workout = workoutForWeekday(plan, isoWeekday);
-  const isToday = week ? week[selectedIndex]?.isToday === true : true;
+  // O treino em execução manda mais que a fila: se você já começou o próximo
+  // antes de ele virar "o atual", a tela continua mostrando o que está aberto.
+  const workout = workoutById(plan, session?.workoutId ?? currentWorkoutId);
 
   const cursor = useMemo(
     () => (workout ? cursorFor(workout, session?.entries ?? []) : null),
@@ -42,20 +41,20 @@ export default function HomePage() {
   const heroHint = inProgress
     ? `${logged} de ${sets} séries registradas`
     : "seu plano está pronto";
-  const editHref = `/planejar?dia=${isoWeekday}`;
+  const editHref = workout ? `/planejar?treino=${workout.id}` : "/planejar";
 
   return (
     <main className="shell shell--withNav">
       {week ? (
-        <WeekStrip days={week} selectedIndex={selectedIndex} onSelect={setPicked} />
+        <WeekStrip days={week} trainedKeys={trainedKeys} />
       ) : (
         <WeekStripSkeleton />
       )}
 
       {workout ? (
         <HeroCard
-          dayIndex={selectedIndex}
-          eyebrow={isToday ? "treino de hoje" : "treino do dia"}
+          todayIndex={todayIndex}
+          eyebrow="próximo treino"
           title={workout.title}
           meta={`${pluralize(workout.exercises.length, "exercício", "exercícios")} · ${pluralize(sets, "série", "séries")}`}
           hint={heroHint}
@@ -64,31 +63,37 @@ export default function HomePage() {
         />
       ) : (
         <HeroCard
-          dayIndex={selectedIndex}
-          eyebrow="sem treino"
-          title="Dia livre"
-          meta="Nada planejado para este dia"
-          hint="a semana fica como você deixou"
+          todayIndex={todayIndex}
+          eyebrow="rotação vazia"
+          title="Nada montado ainda"
+          meta="Nenhum treino na fila"
+          hint="toque para montar o primeiro"
+          href="/planejar"
+          filled={false}
         />
       )}
 
-      <p className={`eyebrow ${styles.planLabel}`}>plano do dia</p>
-      <h1 className={`sectionTitle ${styles.planTitle}`}>Seus exercícios</h1>
+      {workout ? (
+        <>
+          <p className={`eyebrow ${styles.planLabel}`}>plano do dia</p>
+          <h1 className={`sectionTitle ${styles.planTitle}`}>Seus exercícios</h1>
 
-      <div className={styles.chips}>
-        <Link href="/progresso" className={styles.chip}>
-          Ver evolução
-        </Link>
-        <Link href={editHref} className={styles.chip}>
-          Editar semana
-        </Link>
-      </div>
+          <div className={styles.chips}>
+            <Link href="/progresso" className={styles.chip}>
+              Ver evolução
+            </Link>
+            <Link href={editHref} className={styles.chip}>
+              Editar rotação
+            </Link>
+          </div>
 
-      <ExerciseTimeline
-        exercises={workout?.exercises ?? []}
-        currentIndex={workout && isToday ? currentExerciseIndex : -1}
-        editHref={editHref}
-      />
+          <ExerciseTimeline
+            exercises={workout.exercises}
+            currentIndex={currentExerciseIndex}
+            editHref={editHref}
+          />
+        </>
+      ) : null}
     </main>
   );
 }

@@ -1,42 +1,43 @@
-"use client";
-
 import type { WeekDay } from "@/lib/week";
 import styles from "./WeekStrip.module.css";
 
-const FULL_NAME = [
-  "segunda-feira",
-  "terça-feira",
-  "quarta-feira",
-  "quinta-feira",
-  "sexta-feira",
-  "sábado",
-  "domingo",
-];
-
 interface Props {
   days: WeekDay[];
-  selectedIndex: number;
-  onSelect: (index: number) => void;
+  /** Chaves (WeekDay.key) dos dias em que algum treino foi concluído. */
+  trainedKeys: Set<string>;
 }
 
-export function WeekStrip({ days, selectedIndex, onSelect }: Props) {
+/**
+ * Faixa só de leitura: sem treino fixo por dia, não há mais "escolher um dia
+ * para ver o plano dele" — o card herói sempre mostra o próximo da fila. A
+ * faixa marca onde hoje está no calendário e o que já foi feito.
+ */
+export function WeekStrip({ days, trainedKeys }: Props) {
   return (
     <div className={styles.strip} role="group" aria-label="Semana">
-      {days.map((day, index) => (
-        <button
-          key={day.key}
-          type="button"
-          className={styles.day}
-          aria-pressed={index === selectedIndex}
-          aria-label={`${FULL_NAME[index]}, dia ${day.dayOfMonth}${day.isToday ? ", hoje" : ""}`}
-          onClick={() => onSelect(index)}
-        >
-          <span className={styles.letter} aria-hidden>
-            {day.letter}
-          </span>
-          <span className={styles.number}>{day.dayOfMonth}</span>
-        </button>
-      ))}
+      {days.map((day) => {
+        const trained = trainedKeys.has(day.key);
+        return (
+          <div
+            key={day.key}
+            className={styles.day}
+            aria-label={`${day.letter === "d" ? "domingo" : day.letter}, dia ${day.dayOfMonth}${
+              day.isToday ? ", hoje" : trained ? ", treinado" : ""
+            }`}
+          >
+            <span className={styles.letter} aria-hidden data-today={day.isToday || undefined}>
+              {day.letter}
+            </span>
+            <span
+              className={styles.number}
+              data-today={day.isToday || undefined}
+              data-trained={(!day.isToday && trained) || undefined}
+            >
+              {day.dayOfMonth}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

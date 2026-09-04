@@ -2,8 +2,8 @@
   display: flex;
   gap: 2px;
   /* recuo espelhado em HeroCard (STRIP_INSET): mantém o vinco alinhado */
-  padding: 0 5%;
-  /* o card herói sobe por baixo da faixa: o dia ativo encaixa na ondulação */
+  padding: 0 6.5%;
+  /* o card herói sobe por baixo da faixa: hoje encaixa no vinco */
   margin-bottom: -16px;
   position: relative;
   z-index: 1;
@@ -13,9 +13,6 @@
   flex: 1;
   min-width: 0;
   min-height: var(--tap);
-  padding: 0;
-  background: none;
-  border: 0;
   text-align: center;
 }
 
@@ -24,7 +21,10 @@
   font-size: 11px;
   letter-spacing: 1px;
   color: var(--text-quiet);
-  transition: color 160ms ease;
+}
+
+.letter[data-today] {
+  color: var(--accent);
 }
 
 .number {
@@ -36,16 +36,28 @@
   min-height: 22px;
 }
 
-.day[aria-pressed="true"] .letter {
-  color: var(--accent);
-}
-
-.day[aria-pressed="true"] .number {
+/* Hoje: círculo cheio, o mesmo idioma visual de "onde você está agora". */
+.number[data-today] {
   width: 34px;
   height: 34px;
   margin: 2px auto 0;
   border-radius: 50%;
   background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dia passado com treino concluído: mesmo círculo, tom apagado — dado
+   recente mas não atual (regra de cor do spec). */
+.number[data-trained] {
+  width: 34px;
+  height: 34px;
+  margin: 2px auto 0;
+  border-radius: 50%;
+  background: var(--accent-dim);
   color: var(--on-accent);
   font-weight: 500;
   display: flex;

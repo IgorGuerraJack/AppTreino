@@ -1,30 +1,32 @@
 "use client";
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
-import { newExercise, newWorkout } from "./plan";
+import { newExercise, newWorkout, nextWorkoutId } from "./plan";
 import { newSession } from "./session";
-import type { PlannedExercise, SetEntry, WeekPlan, Workout } from "./types";
+import type { PersistedState } from "./storage";
+import type { PlannedExercise, RotationPlan, SetEntry, Workout } from "./types";
 import { getServerSnapshot, getSnapshot, mutate, subscribe } from "./workoutStore";
 
-/** Aplica uma transformação ao treino de um dia; remover o último exercício apaga o treino. */
+/**
+ * Tira `id` da fila e, se ele era o `currentWorkoutId`, aponta para o
+ * próximo — nunca deixa o ponteiro solto num treino que não existe mais.
+ */
+function dropWorkout(previous: PersistedState, id: string): PersistedState {
+  const workouts = previous.plan.workouts.filter((w) => w.id !== id);
+  const currentWorkoutId =
+    previous.currentWorkoutId === id
+      ? nextWorkoutId({ workouts }, id)
+      : previous.currentWorkoutId;
+  return { ...previous, plan: { workouts }, currentWorkoutId };
+}
+
+/** Aplica uma transformação a um treino da rotação, por id. */
 function withWorkout(
-  plan: WeekPlan,
-  isoWeekday: number,
-  fn: (workout: Workout) => Workout | null,
-  createIfMissing = false,
-): WeekPlan {
-  const existing = plan.workouts.find((w) => w.isoWeekday === isoWeekday);
-  if (!existing) {
-    if (!createIfMissing) return plan;
-    const created = fn(newWorkout(isoWeekday));
-    return created ? { workouts: [...plan.workouts, created] } : plan;
-  }
-  const next = fn(existing);
-  return {
-    workouts: next
-      ? plan.workouts.map((w) => (w.isoWeekday === isoWeekday ? next : w))
-      : plan.workouts.filter((w) => w.isoWeekday !== isoWeekday),
-  };
+  plan: RotationPlan,
+  id: string,
+  fn: (workout: Workout) => Workout,
+): RotationPlan {
+  return { workouts: plan.workouts.map((w) => (w.id === id ? fn(w) : w)) };
 }
 
 /**
@@ -101,55 +103,88 @@ export function useWorkoutStore() {
     });
   }, []);
 
+  /**
+   * Fecha a sessão e, só se algo foi de fato registrado, avança a fila para
+   * o próximo treino — abandonar sem bater nenhuma série não move a rotação.
+   */
   const finish = useCallback(() => {
     mutate((previous) => {
       const session = previous.session;
       if (!session) return previous;
+      const completed = session.entries.length > 0;
       return {
         ...previous,
         session: null,
-        history:
-          session.entries.length === 0
-            ? previous.history
-            : [
-                ...previous.history,
-                {
-                  workoutId: session.workoutId,
-                  startedAt: session.startedAt,
-                  finishedAt: Date.now(),
-                  entries: session.entries,
-                },
-              ],
+        currentWorkoutId: completed
+          ? nextWorkoutId(previous.plan, session.workoutId)
+          : previous.currentWorkoutId,
+        history: completed
+          ? [
+              ...previous.history,
+              {
+                workoutId: session.workoutId,
+                startedAt: session.startedAt,
+                finishedAt: Date.now(),
+                entries: session.entries,
+              },
+            ]
+          : previous.history,
       };
     });
   }, []);
 
-  // ---- edição do plano ----
+  // ---- edição da rotação ----
 
-  const setWorkoutTitle = useCallback((isoWeekday: number, title: string) => {
+  const addWorkout = useCallback((title: string) => {
+    mutate((previous) => {
+      const workout = newWorkout(title);
+      const plan = { workouts: [...previous.plan.workouts, workout] };
+      return {
+        ...previous,
+        plan,
+        currentWorkoutId: previous.currentWorkoutId ?? workout.id,
+      };
+    });
+  }, []);
+
+  const removeWorkout = useCallback((workoutId: string) => {
+    mutate((previous) => dropWorkout(previous, workoutId));
+  }, []);
+
+  const moveWorkout = useCallback((workoutId: string, delta: number) => {
+    mutate((previous) => {
+      const from = previous.plan.workouts.findIndex((w) => w.id === workoutId);
+      const to = from + delta;
+      if (from < 0 || to < 0 || to >= previous.plan.workouts.length) return previous;
+      const workouts = [...previous.plan.workouts];
+      const [moved] = workouts.splice(from, 1);
+      workouts.splice(to, 0, moved);
+      return { ...previous, plan: { workouts } };
+    });
+  }, []);
+
+  const setWorkoutTitle = useCallback((workoutId: string, title: string) => {
     mutate((previous) => ({
       ...previous,
-      plan: withWorkout(previous.plan, isoWeekday, (w) => ({ ...w, title })),
+      plan: withWorkout(previous.plan, workoutId, (w) => ({ ...w, title })),
     }));
   }, []);
 
-  const addExercise = useCallback((isoWeekday: number) => {
+  const addExercise = useCallback((workoutId: string) => {
     mutate((previous) => ({
       ...previous,
-      plan: withWorkout(
-        previous.plan,
-        isoWeekday,
-        (w) => ({ ...w, exercises: [...w.exercises, newExercise()] }),
-        true,
-      ),
+      plan: withWorkout(previous.plan, workoutId, (w) => ({
+        ...w,
+        exercises: [...w.exercises, newExercise()],
+      })),
     }));
   }, []);
 
   const updateExercise = useCallback(
-    (isoWeekday: number, exerciseId: string, patch: Partial<PlannedExercise>) => {
+    (workoutId: string, exerciseId: string, patch: Partial<PlannedExercise>) => {
       mutate((previous) => ({
         ...previous,
-        plan: withWorkout(previous.plan, isoWeekday, (w) => ({
+        plan: withWorkout(previous.plan, workoutId, (w) => ({
           ...w,
           exercises: w.exercises.map((e) => (e.id === exerciseId ? { ...e, ...patch } : e)),
         })),
@@ -158,21 +193,26 @@ export function useWorkoutStore() {
     [],
   );
 
-  const removeExercise = useCallback((isoWeekday: number, exerciseId: string) => {
-    mutate((previous) => ({
-      ...previous,
-      plan: withWorkout(previous.plan, isoWeekday, (w) => {
-        const exercises = w.exercises.filter((e) => e.id !== exerciseId);
-        // Sem exercícios não há treino: o dia volta a ser livre.
-        return exercises.length === 0 ? null : { ...w, exercises };
-      }),
-    }));
+  /** Sem exercícios não há treino: o último apagado tira o treino da rotação. */
+  const removeExercise = useCallback((workoutId: string, exerciseId: string) => {
+    mutate((previous) => {
+      const workout = previous.plan.workouts.find((w) => w.id === workoutId);
+      if (!workout) return previous;
+      const exercises = workout.exercises.filter((e) => e.id !== exerciseId);
+      if (exercises.length > 0) {
+        return {
+          ...previous,
+          plan: withWorkout(previous.plan, workoutId, (w) => ({ ...w, exercises })),
+        };
+      }
+      return dropWorkout(previous, workoutId);
+    });
   }, []);
 
-  const moveExercise = useCallback((isoWeekday: number, exerciseId: string, delta: number) => {
+  const moveExercise = useCallback((workoutId: string, exerciseId: string, delta: number) => {
     mutate((previous) => ({
       ...previous,
-      plan: withWorkout(previous.plan, isoWeekday, (w) => {
+      plan: withWorkout(previous.plan, workoutId, (w) => {
         const from = w.exercises.findIndex((e) => e.id === exerciseId);
         const to = from + delta;
         if (from < 0 || to < 0 || to >= w.exercises.length) return w;
@@ -192,6 +232,9 @@ export function useWorkoutStore() {
       addRest,
       restartRest,
       finish,
+      addWorkout,
+      removeWorkout,
+      moveWorkout,
       setWorkoutTitle,
       addExercise,
       updateExercise,
@@ -205,6 +248,9 @@ export function useWorkoutStore() {
       addRest,
       restartRest,
       finish,
+      addWorkout,
+      removeWorkout,
+      moveWorkout,
       setWorkoutTitle,
       addExercise,
       updateExercise,
@@ -216,6 +262,7 @@ export function useWorkoutStore() {
   return {
     hydrated,
     plan: data.plan,
+    currentWorkoutId: data.currentWorkoutId,
     session: data.session,
     history: data.history,
     lastWeights: data.lastWeights,

@@ -15,6 +15,11 @@ export function isoWeekdayOf(date: Date): number {
   return date.getDay() === 0 ? 7 : date.getDay();
 }
 
+/** Chave de calendário estável, sem hora — usada para casar datas entre si. */
+export function dateKeyOf(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
 /** Semana que contém `today`, começando na segunda. */
 export function currentWeek(today: Date): WeekDay[] {
   const isoToday = isoWeekdayOf(today);
@@ -26,7 +31,7 @@ export function currentWeek(today: Date): WeekDay[] {
     const date = new Date(monday);
     date.setDate(monday.getDate() + index);
     return {
-      key: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+      key: dateKeyOf(date),
       isoWeekday: index + 1,
       dayOfMonth: date.getDate(),
       letter,

@@ -1,6 +1,7 @@
 import { formatKg } from "./format";
 import type { HistoryRecord } from "./storage";
 import type { SetEntry } from "./types";
+import { dateKeyOf } from "./week";
 
 /**
  * Resumo do que foi feito num exercício numa sessão. Guarda faixas porque uma
@@ -54,4 +55,12 @@ export function formatSummary(summary: ExerciseSummary): string {
   const reps = range(summary.repsMin, summary.repsMax, String);
   const weight = range(summary.weightMin, summary.weightMax, formatKg);
   return `${summary.sets}×${reps} · ${weight} kg`;
+}
+
+/**
+ * Datas (mesma chave de WeekDay.key) em que algum treino foi concluído. Sem
+ * treino por dia fixo, a faixa da semana só pode mostrar o que já aconteceu.
+ */
+export function trainedDateKeys(history: HistoryRecord[]): Set<string> {
+  return new Set(history.map((record) => dateKeyOf(new Date(record.finishedAt))));
 }

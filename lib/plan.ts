@@ -1,16 +1,15 @@
-import type { PlannedExercise, WeekPlan, Workout } from "./types";
+import type { PlannedExercise, RotationPlan, Workout } from "./types";
 
 /**
- * Semente do plano. A partir da primeira edição quem manda é o que está
- * gravado no aparelho — isto aqui só preenche a primeira abertura.
- * Espelha o mockup: Superiores, 2 exercícios, 7 séries, na quinta.
+ * Semente da rotação. A partir da primeira edição quem manda é o que está
+ * gravado no aparelho — isto aqui só preenche a primeira abertura. Um
+ * treino só, porque a rotação nasce vazia e o usuário monta a sequência.
  */
-export const DEFAULT_PLAN: WeekPlan = {
+export const DEFAULT_PLAN: RotationPlan = {
   workouts: [
     {
       id: "superiores",
       title: "Superiores",
-      isoWeekday: 4,
       exercises: [
         {
           id: "supino-inclinado",
@@ -37,8 +36,20 @@ export const DEFAULT_PLAN: WeekPlan = {
   ],
 };
 
-export function workoutForWeekday(plan: WeekPlan, isoWeekday: number): Workout | null {
-  return plan.workouts.find((w) => w.isoWeekday === isoWeekday) ?? null;
+export function workoutById(plan: RotationPlan, id: string | null): Workout | null {
+  if (id === null) return null;
+  return plan.workouts.find((w) => w.id === id) ?? null;
+}
+
+/**
+ * O treino seguinte na rotação, depois de `afterId`. Some da sequência (foi
+ * removido) → cai no primeiro. Rotação vazia → null.
+ */
+export function nextWorkoutId(plan: RotationPlan, afterId: string | null): string | null {
+  if (plan.workouts.length === 0) return null;
+  const index = plan.workouts.findIndex((w) => w.id === afterId);
+  if (index === -1) return plan.workouts[0].id;
+  return plan.workouts[(index + 1) % plan.workouts.length].id;
 }
 
 export function totalSets(workout: Workout): number {
@@ -67,16 +78,29 @@ export function newExercise(): PlannedExercise {
 }
 
 /**
- * Nasce sem exercícios: quem cria o treino é sempre o "Adicionar exercício",
- * que acrescenta o primeiro logo em seguida. Já vir com um faria dois.
+ * Nasce sem exercícios: quem preenche é sempre o "Adicionar exercício" que
+ * vem em seguida — já vir com um faria dois.
  */
-export function newWorkout(isoWeekday: number): Workout {
+export function newWorkout(title = "Treino"): Workout {
   return {
     id: makeId("treino"),
-    title: "Treino",
-    isoWeekday,
+    title,
     exercises: [],
   };
+}
+
+/** A próxima letra livre — A, B, C… — para nomear um treino novo. */
+export function nextWorkoutLetter(plan: RotationPlan): string {
+  const used = new Set(
+    plan.workouts
+      .map((w) => /^Treino ([A-Z])$/.exec(w.title)?.[1])
+      .filter((letter): letter is string => Boolean(letter)),
+  );
+  for (let i = 0; i < 26; i += 1) {
+    const letter = String.fromCharCode(65 + i);
+    if (!used.has(letter)) return letter;
+  }
+  return String(plan.workouts.length + 1);
 }
 
 /** Limites dos steppers — barram valores absurdos sem exigir precisão. */

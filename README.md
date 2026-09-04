@@ -3,15 +3,23 @@
 PWA instalável de treino, mobile-first, um usuário só. Next.js (App Router) +
 TypeScript. O visual segue `DESIGN.md` e o `mockup.html` de referência.
 
+O plano é uma **rotação que gira** — A, B, C… — não um treino fixo por dia da
+semana. Você treina o que estiver no topo da fila; ao concluir, a fila anda um
+passo. Um dia de descanso não consome vaga: a fila só avança quando você
+realmente treina.
+
 Telas implementadas:
 
-- **Início** (`/`) — faixa da semana, card herói com a ondulação sob o dia
-  ativo, e a timeline de exercícios do dia.
+- **Início** (`/`) — faixa da semana (só o passado: hoje em dourado cheio, dias
+  já treinados em dourado apagado) e o card herói com o próximo treino da fila,
+  vinco sob o dia de hoje.
 - **Treino em execução** (`/treino`) — série atual em destaque, peso
-  pré-preenchido, cronômetro de descanso e ação primária no rodapé.
-- **Montar semana** (`/planejar`) — edita o treino de cada dia: nome, ordem e,
-  por exercício, séries, repetições, peso e descanso. Ajuste por stepper em vez
-  de teclado; esvaziar um dia devolve ele para "livre".
+  pré-preenchido, cronômetro de descanso e ação primária no rodapé. Ao concluir
+  o treino, a fila avança sozinha.
+- **Montar rotação** (`/planejar`) — lista os treinos na ordem em que rodam,
+  com reordenar e remover; toque num para editar nome e, por exercício, séries,
+  repetições, peso e descanso. Ajuste por stepper em vez de teclado; esvaziar
+  um treino o tira da rotação.
 
 ## Rodando
 
@@ -56,10 +64,10 @@ app/
   page.tsx          Início
   treino/           Treino em execução
   manifest.ts       manifesto do PWA
-  planejar/         Montar semana (editor do plano)
+  planejar/         Montar rotação (lista de treinos + editor de cada um)
   progresso/  offline/         telas de apoio
-components/         WeekStrip, HeroCard, ExerciseTimeline, SetTable, RestTimer, NavPill
-lib/                plano, sessão, persistência, formatação, hooks
+components/         WeekStrip, HeroCard, ExerciseTimeline, WorkoutRow, SetTable, RestTimer, NavPill
+lib/                rotação, sessão, histórico, persistência, formatação, hooks
 public/sw.js        service worker
 ```
 
@@ -70,12 +78,24 @@ variável em `globals.css`, inclusive as variantes de texto sobre o dourado que
 o mockup usa (`--on-accent-muted`, `--on-accent-faint`). O bloco do tema claro
 já existe em `:root[data-theme="light"]`; falta só quem o acione.
 
-**A ondulação do herói.** O path do mockup foi parametrizado pelo centro do
-vale (`heroPath` em `components/HeroCard.tsx`), e o vale acompanha o dia
-selecionado. Nas pontas da semana ele não cabe inteiro entre os cantos
-arredondados, então encolhe em vez de escorregar para debaixo do dia errado —
-segunda e domingo ganham uma covinha rasa, alinhada com o dia. É a única
-animação não disparada por toque, e ela respeita `prefers-reduced-motion`.
+**O vinco do herói.** É um arco elíptico de verdade (`heroPath` em
+`components/HeroCard.tsx`), com raio igual ao raio do círculo do dia — encaixa
+nele, não uma curva em V aproximando. Marca sempre "hoje" na faixa da semana:
+sem treino por dia fixo, não há mais dia para escolher, só o próximo da fila.
+Nas pontas da semana ele encolhe um pouco para não invadir o canto arredondado
+do card (~84% da profundidade em segunda e domingo, contra o piso de 44px dos
+alvos de toque da faixa). É a única animação não disparada por toque, e
+respeita `prefers-reduced-motion`.
+
+**A rotação, não o calendário.** O plano não é "um treino por dia da semana" —
+é uma sequência (`RotationPlan.workouts`, ordem = ordem de rotação) mais um
+ponteiro (`currentWorkoutId`) para o topo da fila. `finish()` só avança o
+ponteiro se alguma série foi de fato registrada: abandonar um treino sem bater
+nada não move a fila, e um dia sem treinar não pula ninguém — bate exatamente
+com uma rotação de N treinos numa semana de treino mais curta que N, onde a
+letra de início desliza a cada semana. O ponteiro guarda o *id* do treino, não
+um índice: reordenar ou remover outros treinos da fila nunca desloca "onde eu
+estou". Remover o treino atual avança para o próximo remanescente.
 
 **Estado da sessão.** A posição atual (exercício e série) não é guardada: é
 derivada das séries já registradas (`lib/session.ts`). Um estado a menos para

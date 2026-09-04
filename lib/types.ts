@@ -22,13 +22,15 @@ export interface PlannedExercise {
 export interface Workout {
   id: string;
   title: string;
-  /** Dia da semana em que o treino cai — 1 = segunda … 7 = domingo (ISO). */
-  isoWeekday: number;
   exercises: PlannedExercise[];
 }
 
-/** O plano inteiro: no máximo um treino por dia da semana. */
-export interface WeekPlan {
+/**
+ * O plano é uma sequência que gira — A, B, C… — não um treino fixo por dia
+ * da semana. A ordem do array é a ordem da rotação; nada aqui diz qual dia
+ * do calendário é qual treino.
+ */
+export interface RotationPlan {
   workouts: Workout[];
 }
 

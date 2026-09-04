@@ -9,10 +9,11 @@ const VIEW_W = 320;
 const VIEW_H = 210;
 const DAYS = 7;
 /* A faixa da semana usa o mesmo recuo (WeekStrip.module.css) para o vinco
-   cair exatamente sob o dia ativo. 5% em vez dos 2,5% originais — o máximo
-   que ainda deixa cada dia com 44px de largura em 390px, o piso de toque do
-   spec; um recuo maior encolheria os botões da faixa abaixo disso. */
-const STRIP_INSET = 0.05;
+   cair exatamente sob o dia ativo. A faixa não é mais tocável (não há dia
+   para escolher, só o de hoje) — 6,5% é só o mínimo que afasta segunda e
+   domingo o suficiente do canto arredondado do card para caber o vinco
+   inteiro, sem tocar a curva do canto. */
+const STRIP_INSET = 0.065;
 /* Trecho reto do topo do card: fora dele o vinco invadiria os cantos. */
 const FLAT_START = 24;
 const FLAT_END = 296;
@@ -21,7 +22,7 @@ const FLAT_END = 296;
    semicírculo de verdade, não uma curva em V. */
 const RADIUS = 15;
 
-/** Centro do vinco, em unidades do viewBox, para o dia selecionado. */
+/** Centro do vinco, em unidades do viewBox, sob a posição de hoje na faixa. */
 export function valleyCenter(dayIndex: number): number {
   const fraction = STRIP_INSET + ((dayIndex + 0.5) / DAYS) * (1 - STRIP_INSET * 2);
   return Math.min(FLAT_END, Math.max(FLAT_START, fraction * VIEW_W));
@@ -60,21 +61,40 @@ export function heroPath(cx: number, scale = 1): string {
 }
 
 interface Props {
-  dayIndex: number;
+  /**
+   * Posição de hoje na faixa da semana (0 = segunda … 6 = domingo). O vinco
+   * marca "você está aqui" no calendário — não é mais um dia escolhido: com
+   * a rotação, o treino mostrado é sempre o próximo da fila, não o do dia.
+   */
+  todayIndex: number;
   eyebrow: string;
   title: string;
   meta: string;
   hint: string;
-  /** Sem href o card é só uma superfície informativa (dia sem treino). */
+  /** Sem href o card é só uma superfície informativa. */
   href?: string;
   actionLabel?: string;
+  /**
+   * Dourado sólido = há um treino pronto para começar agora. Um href sem
+   * treino pronto (convite para montar a rotação) ainda é tocável, mas não
+   * preenchido — o dourado é reservado para "pode começar".
+   */
+  filled?: boolean;
 }
 
-export function HeroCard({ dayIndex, eyebrow, title, meta, hint, href, actionLabel }: Props) {
+export function HeroCard({
+  todayIndex,
+  eyebrow,
+  title,
+  meta,
+  hint,
+  href,
+  actionLabel,
+  filled = Boolean(href),
+}: Props) {
   const clipId = `hero-clip-${useId().replace(/:/g, "")}`;
-  const cx = useAnimatedNumber(valleyCenter(dayIndex));
+  const cx = useAnimatedNumber(valleyCenter(todayIndex));
   const d = heroPath(cx, valleyScale(cx));
-  const filled = Boolean(href);
 
   const body = (
     <>
@@ -120,13 +140,15 @@ export function HeroCard({ dayIndex, eyebrow, title, meta, hint, href, actionLab
     </>
   );
 
+  const className = `${styles.hero} ${filled ? "" : styles["hero--empty"]}`;
+
   if (href) {
     return (
-      <Link href={href} className={styles.hero} aria-label={actionLabel ?? title}>
+      <Link href={href} className={className} aria-label={actionLabel ?? title}>
         {body}
       </Link>
     );
   }
 
-  return <div className={`${styles.hero} ${styles["hero--empty"]}`}>{body}</div>;
+  return <div className={className}>{body}</div>;
 }

@@ -9,28 +9,22 @@ import { RestTimer } from "@/components/RestTimer";
 import { SetTable } from "@/components/SetTable";
 import { formatClock, formatKg, parseKg, parseReps } from "@/lib/format";
 import { formatSummary, lastSummaryFor } from "@/lib/history";
-import { totalSets, workoutForWeekday } from "@/lib/plan";
+import { totalSets, workoutById } from "@/lib/plan";
 import { cursorFor, entriesFor } from "@/lib/session";
-import { useMounted } from "@/lib/useMounted";
 import { useTicker } from "@/lib/useTicker";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { useWorkoutStore } from "@/lib/useWorkoutStore";
-import { isoWeekdayOf } from "@/lib/week";
 import styles from "./treino.module.css";
 
 export default function TreinoPage() {
   const router = useRouter();
-  const mounted = useMounted();
   const store = useWorkoutStore();
-  const { hydrated, plan, session, history, lastWeights } = store;
+  const { hydrated, plan, currentWorkoutId, session, history, lastWeights } = store;
 
-  /* Um treino em andamento manda mais que o calendário: se a sessão virou a
-     meia-noite, a tela continua sendo a do treino que está rolando. */
-  const workout = useMemo(() => {
-    const running = session ? plan.workouts.find((w) => w.id === session.workoutId) : null;
-    if (running) return running;
-    return mounted ? workoutForWeekday(plan, isoWeekdayOf(new Date())) : null;
-  }, [plan, session, mounted]);
+  // Sessão em andamento manda mais que a fila — o ponteiro só avança ao concluir.
+  const workout = session
+    ? (plan.workouts.find((w) => w.id === session.workoutId) ?? null)
+    : workoutById(plan, currentWorkoutId);
 
   const entries = useMemo(() => session?.entries ?? [], [session?.entries]);
   const cursor = useMemo(
@@ -38,7 +32,7 @@ export default function TreinoPage() {
     [workout, entries],
   );
   const running = session !== null;
-  const ready = mounted && hydrated;
+  const ready = hydrated;
 
   // A tela não pode apagar enquanto o treino está aberto.
   useWakeLock(running);
@@ -80,10 +74,10 @@ export default function TreinoPage() {
     return (
       <main className="shell shell--withNav">
         <Placeholder
-          eyebrow="hoje"
-          title="Dia livre"
-          text="Nenhum treino planejado para hoje. Monte a semana e o treino aparece aqui."
-          actionLabel="Montar semana"
+          eyebrow="fila vazia"
+          title="Nada montado ainda"
+          text="Nenhum treino na rotação. Monte o primeiro e ele aparece aqui."
+          actionLabel="Montar rotação"
           actionHref="/planejar"
         />
       </main>

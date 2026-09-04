@@ -1,5 +1,5 @@
 import { DEFAULT_PLAN } from "./plan";
-import type { SessionState, SetEntry, WeekPlan } from "./types";
+import type { RotationPlan, SessionState, SetEntry } from "./types";
 
 const KEY = "apptreino:v1";
 
@@ -12,7 +12,9 @@ export interface HistoryRecord {
 
 export interface PersistedState {
   /** O plano é editável: a constante em plan.ts é só a semente. */
-  plan: WeekPlan;
+  plan: RotationPlan;
+  /** O treino no topo da fila — o que "Iniciar treino" abre. */
+  currentWorkoutId: string | null;
   session: SessionState | null;
   history: HistoryRecord[];
   /** Último peso usado por exercício — é o que pré-preenche a próxima sessão. */
@@ -21,6 +23,7 @@ export interface PersistedState {
 
 export const EMPTY_STATE: PersistedState = {
   plan: DEFAULT_PLAN,
+  currentWorkoutId: DEFAULT_PLAN.workouts[0]?.id ?? null,
   session: null,
   history: [],
   lastWeights: {},
@@ -36,10 +39,18 @@ export function loadState(): PersistedState {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return EMPTY_STATE;
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
+    // Uma rotação sem treinos é um estado legítimo (usuário removeu tudo);
+    // só a ausência da chave (instalação antiga) volta para a semente.
+    const plan =
+      parsed.plan && Array.isArray(parsed.plan.workouts) ? parsed.plan : DEFAULT_PLAN;
+    const hasCurrent =
+      typeof parsed.currentWorkoutId === "string" &&
+      plan.workouts.some((w) => w.id === parsed.currentWorkoutId);
     return {
-      // Um plano sem treinos é uma semana vazia legítima; só a ausência da
-      // chave (instalação antiga) volta para a semente.
-      plan: parsed.plan && Array.isArray(parsed.plan.workouts) ? parsed.plan : DEFAULT_PLAN,
+      plan,
+      // Instalação de antes da rotação (ou o treino apontado foi removido):
+      // cai no primeiro da fila.
+      currentWorkoutId: hasCurrent ? (parsed.currentWorkoutId as string) : (plan.workouts[0]?.id ?? null),
       session: parsed.session ?? null,
       history: Array.isArray(parsed.history) ? parsed.history : [],
       lastWeights: parsed.lastWeights ?? {},

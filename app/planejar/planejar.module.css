@@ -1,12 +1,31 @@
-/* A faixa da semana sobe 16px para encaixar no card herói; aqui não há herói,
-   então o espaço volta neste primeiro bloco. */
 .label {
   color: var(--accent);
-  margin: 36px 0 2px 4px;
+  margin: 0 0 2px 4px;
 }
 
-.emptyTitle {
-  margin: 0 0 12px;
+.rotationTitle {
+  margin: 0 0 4px 4px;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px -10px;
+}
+
+.back {
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.labelInline {
+  margin: 0;
 }
 
 .titleRow {
